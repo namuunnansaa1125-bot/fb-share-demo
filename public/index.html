@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8">
+  <title>Canvas → Facebook Share Demo</title>
+</head>
+<body>
+  <h1>Canvas → Facebook Share Demo</h1>
+
+  <!-- Canvas -->
+  <canvas id="myCanvas" width="600" height="315" style="border:1px solid #000"></canvas>
+  <br>
+  <button id="drawBtn">Зураг зурах</button>
+  <button id="shareBtn">Facebook-д Share хийх</button>
+
+  <script>
+    const canvas = document.getElementById("myCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Demo зураг зурах
+    document.getElementById("drawBtn").onclick = () => {
+      ctx.fillStyle = "#3498db";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff";
+      ctx.font = "30px Arial";
+      ctx.fillText("Сайн байна уу Facebook!", 50, 150);
+    };
+
+    // Upload + Share
+    document.getElementById("shareBtn").onclick = () => {
+      canvas.toBlob((blob) => {
+        const formData = new FormData();
+        formData.append("image", blob, "canvas.png");
+
+        fetch("/upload", {
+          method: "POST",
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log("Share Page URL:", data.pageUrl);
+          const fbShare = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(data.pageUrl)}`;
+          window.open(fbShare, "_blank");
+        });
+      });
+    };
+  </script>
+</body>
+</html>
